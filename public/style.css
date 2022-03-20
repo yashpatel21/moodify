@@ -378,6 +378,7 @@ body {
 	background-color: #7e57ff;
 	transition: background-color 0.3s ease-out;
 	border-radius: 15px;
+	box-shadow: -7px 10px #3c2099;
 }
 
 #track-info-container:hover {

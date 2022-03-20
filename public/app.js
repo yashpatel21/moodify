@@ -1,5 +1,4 @@
-// const REDIRECT_URI = 'https://moodify2.herokuapp.com/';
-const REDIRECT_URI = 'http://localhost:5500/';
+const REDIRECT_URI = 'https://moodify2.herokuapp.com/';
 const CLIENT_ID = '229d83fe4d794c548af6b891c2926386';
 
 let access_token = null;
