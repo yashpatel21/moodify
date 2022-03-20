@@ -329,7 +329,7 @@ body {
 #recommended-track-image {
 	width: 100%;
 	height: 100%;
-	border-radius: 10px;
+	/* border-radius: 10px; */
 	margin: auto;
 	border: 3px #1d072b solid;
 	/* box-sizing: content-box; */
