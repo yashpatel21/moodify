@@ -1,5 +1,5 @@
 const AUTHORIZE = 'https://accounts.spotify.com/authorize';
-const REDIRECT_URI = 'https://7617-2603-6010-f63e-60f6-d4b1-624a-b486-2368.ngrok.io/';
+const REDIRECT_URI = 'https://moodify2.herokuapp.com/';
 const CLIENT_ID = '229d83fe4d794c548af6b891c2926386';
 
 let access_token = null;
