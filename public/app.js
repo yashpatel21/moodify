@@ -1,4 +1,3 @@
-const AUTHORIZE = 'https://accounts.spotify.com/authorize';
 const REDIRECT_URI = 'https://moodify2.herokuapp.com/';
 const CLIENT_ID = '229d83fe4d794c548af6b891c2926386';
 
@@ -14,6 +13,9 @@ function onPageLoad() {
 		access_token = getCookie('access_token');
 		if (access_token == '') {
 			document.getElementById('splash-container').style.display = 'block';
+			document.getElementById('title').style.display = 'block';
+			animateCSS('#title', 'fadeIn');
+			animateCSS('#splash-container', 'fadeIn');
 		} else {
 			refreshAccessToken();
 
@@ -21,6 +23,10 @@ function onPageLoad() {
 			document.getElementById('mood-select-container').style.display = 'block';
 			document.getElementById('title').style.marginTop = '0.5vh';
 			document.getElementById('title').style.fontSize = '35px';
+			document.getElementById('title').style.display = 'block';
+			animateCSS('#title', 'fadeIn');
+			animateCSS('#emoji-btns-container', 'zoomIn');
+			animateCSS('#mood-description', 'fadeIn');
 
 			getUserProfile();
 		}
@@ -62,7 +68,7 @@ function getCode() {
 }
 
 function requestAuth() {
-	let url = AUTHORIZE;
+	let url = 'https://accounts.spotify.com/authorize';
 	url += '?client_id=' + CLIENT_ID;
 	url += '&response_type=code';
 	url += '&redirect_uri=' + encodeURI(REDIRECT_URI);
@@ -76,7 +82,6 @@ function fetchTemporaryAccessToken() {
 		method: 'GET',
 	}).then((response) => {
 		response.json().then((data) => {
-			console.log(data.access_token);
 			access_token = data.access_token;
 
 			getTrackData();
@@ -124,6 +129,24 @@ async function refreshAccessToken() {
 	});
 }
 
+const animateCSS = (element, animation, prefix = 'animate__') =>
+	// We create a Promise and return it
+	new Promise((resolve, reject) => {
+		const animationName = `${prefix}${animation}`;
+		const node = document.querySelector(element);
+
+		node.classList.add(`${prefix}animated`, animationName);
+
+		// When the animation ends, we clean the classes and resolve the Promise
+		function handleAnimationEnd(event) {
+			event.stopPropagation();
+			node.classList.remove(`${prefix}animated`, animationName);
+			resolve('Animation ended');
+		}
+
+		node.addEventListener('animationend', handleAnimationEnd, { once: true });
+	});
+
 function getUserProfile() {
 	fetch('https://api.spotify.com/v1/me', {
 		method: 'GET',
@@ -140,6 +163,9 @@ function getUserProfile() {
 			document.getElementById('spotify-user-name').innerText = data.display_name;
 			document.getElementById('user-info-container').style.display = 'flex';
 			document.getElementById('logout-btn').style.display = 'flex';
+
+			animateCSS('#user-info-container', 'fadeIn');
+			animateCSS('#logout-btn', 'fadeIn');
 		});
 	});
 }
@@ -160,14 +186,8 @@ async function getUserTopTracks(mood) {
 		},
 	}).then((response) => {
 		response.json().then((data) => {
-			// console.log(data);
-
 			for (let track of data.items) {
 				top_tracks.push(track.id);
-
-				// let li = document.createElement('li');
-				// li.innerText = track.name;
-				// document.getElementById('spotify-user-track-list').appendChild(li);
 			}
 
 			let top_5 = pickRandomNfromArray(top_tracks, 5);
@@ -190,8 +210,6 @@ function getTrackData() {
 		},
 	}).then((response) => {
 		response.json().then((track) => {
-			console.log(track);
-
 			document.getElementById('recommended-track-image').src = track.album.images[1].url;
 
 			let track_artists = [];
@@ -210,7 +228,9 @@ function getTrackData() {
 			document.getElementById('recommendation-btn-container').style.display = 'block';
 			document.getElementById('try-yourself-container').style.display = 'block';
 			document.getElementById('second-row-btns').style.display = 'none';
-			// document.getElementById('title').style.visibility = 'hidden';
+
+			animateCSS('#recommendation-container', 'zoomIn');
+			animateCSS('#recommendation-btn-container', 'fadeIn');
 		});
 	});
 }
@@ -218,8 +238,6 @@ function getTrackData() {
 function getRecommendations(top_5_tracks, mood) {
 	let url = `https://api.spotify.com/v1/recommendations?target_valence=${mood}&target_energy=${mood}&limit=1&seed_tracks=`;
 	url += top_5_tracks.join(',');
-
-	console.log(url);
 
 	fetch(url, {
 		method: 'GET',
@@ -230,8 +248,6 @@ function getRecommendations(top_5_tracks, mood) {
 		},
 	}).then((response) => {
 		response.json().then((data) => {
-			console.log(data);
-
 			for (let track of data.tracks) {
 				document.getElementById('recommended-track-image').src = track.album.images[1].url;
 
@@ -250,6 +266,8 @@ function getRecommendations(top_5_tracks, mood) {
 			document.getElementById('mood-select-container').style.display = 'none';
 			document.getElementById('recommendation-container').style.display = 'block';
 			document.getElementById('recommendation-btn-container').style.display = 'block';
+			animateCSS('#recommendation-container', 'zoomIn');
+			animateCSS('#recommendation-btn-container', 'fadeIn');
 
 			window.history.pushState('', '', `${REDIRECT_URI}?track=${trackURI}`);
 		});
@@ -260,7 +278,11 @@ function reset() {
 	document.getElementById('recommendation-container').style.display = 'none';
 	document.getElementById('mood-select-container').style.display = 'block';
 	document.getElementById('recommendation-btn-container').style.display = 'none';
-	// document.getElementById('title').style.visibility = 'visible';
+
+	animateCSS('#emoji-btns-container', 'zoomIn');
+	animateCSS('#mood-description', 'fadeIn');
+
+	window.history.pushState('', '', REDIRECT_URI);
 }
 
 function setCookie(cname, cvalue) {
@@ -304,6 +326,13 @@ function logOut() {
 	document.getElementById('recommendation-btn-container').style.display = 'none';
 	document.getElementById('splash-container').style.display = 'block';
 	window.history.pushState('', '', REDIRECT_URI);
+
+	animateCSS('#title', 'fadeIn');
+	animateCSS('#splash-container', 'fadeIn');
+}
+
+function goHome() {
+	window.location.href = REDIRECT_URI;
 }
 
 function share() {

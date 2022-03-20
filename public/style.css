@@ -142,7 +142,7 @@ body {
 	position: relative;
 	font-size: 75px;
 	margin-top: 30vh;
-	/* transition: all 0.3s ease-out; */
+	display: none;
 }
 
 #card-title {
@@ -166,6 +166,7 @@ body {
 	padding-left: 0px;
 	border-radius: 32px;
 	background-color: #613dff;
+	transition: background-color 0.3s ease-out;
 }
 
 #user-info-container:hover {
@@ -188,6 +189,7 @@ body {
 	background-color: #613dff;
 	border: none;
 	border-radius: 42px;
+	transition: background-color 0.3s ease-out;
 }
 
 #logout-btn:hover {
@@ -200,6 +202,7 @@ body {
 	width: 75vw;
 	/* height: 35vh; */
 	margin: auto;
+	--animate-duration: 0.5s;
 	/* overflow: visible; */
 }
 
@@ -230,11 +233,13 @@ body {
 }
 
 #emoji-btns-container {
-	width: 550px;
+	width: 850px;
 	margin: auto;
 	justify-content: space-evenly;
 	display: flex;
 	margin-top: 35vh;
+	transition: width 0.3s ease-out;
+	--animate-duration: 0.5s;
 }
 
 .emoji-btn {
@@ -245,6 +250,8 @@ body {
 	padding: 0px;
 	margin: 0px;
 	transform: translate(-20%, -30%);
+
+	transition: all 0.3s ease-out;
 }
 
 @media screen and (max-width: 900px) {
@@ -278,12 +285,34 @@ body {
 		font-size: 50px;
 	}
 
+	.emoji-btn:hover {
+		cursor: pointer;
+		width: 65px;
+		height: 65px;
+		font-size: 65px;
+		transform: translate(-20%, -33%);
+	}
+
 	#emoji-btns-container {
 		width: 375px;
 	}
 }
 
 @media screen and (max-width: 375px) {
+	.emoji-btn {
+		width: 50px;
+		height: 50px;
+		font-size: 50px;
+	}
+
+	.emoji-btn:hover {
+		cursor: pointer;
+		width: 65px;
+		height: 65px;
+		font-size: 65px;
+		transform: translate(-20%, -33%);
+	}
+
 	#emoji-btns-container {
 		width: 275px;
 	}
@@ -291,19 +320,11 @@ body {
 
 .emoji-btn:hover {
 	cursor: pointer;
-	/* width: 85px;
+	width: 85px;
 	height: 85px;
 	font-size: 85px;
-	transform: translate(-20%, -33%); */
+	transform: translate(-20%, -33%);
 }
-
-/* .emoji-btn:active {
-	cursor: pointer;
-	width: 75px;
-	height: 75px;
-	font-size: 75px;
-	transform: translate(-20%, -30%);
-} */
 
 #mood-description {
 	margin-top: 125px;
@@ -345,6 +366,7 @@ body {
 	text-align: center;
 	padding: 25px;
 	background-color: #7e57ff;
+	transition: background-color 0.3s ease-out;
 	border-radius: 15px;
 }
 
