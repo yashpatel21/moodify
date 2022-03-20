@@ -1,4 +1,5 @@
-const REDIRECT_URI = 'https://moodify2.herokuapp.com/';
+// const REDIRECT_URI = 'https://moodify2.herokuapp.com/';
+const REDIRECT_URI = 'http://localhost:5500/';
 const CLIENT_ID = '229d83fe4d794c548af6b891c2926386';
 
 let access_token = null;
@@ -171,6 +172,8 @@ function getUserProfile() {
 }
 
 async function getUserTopTracks(mood) {
+	document.getElementById('mood-select-container').style.display = 'none';
+
 	let top_tracks = [];
 
 	let time_range = Math.random() < 0.5 ? 'short_term' : 'medium_term';
@@ -228,6 +231,10 @@ function getTrackData() {
 			document.getElementById('recommendation-btn-container').style.display = 'block';
 			document.getElementById('try-yourself-container').style.display = 'block';
 			document.getElementById('second-row-btns').style.display = 'none';
+			document.getElementById('title').style.marginTop = '0.5vh';
+			document.getElementById('title').style.fontSize = '35px';
+			document.getElementById('title').style.display = 'block';
+			animateCSS('#title', 'fadeIn');
 
 			animateCSS('#recommendation-container', 'zoomIn');
 			animateCSS('#recommendation-btn-container', 'fadeIn');
@@ -263,7 +270,6 @@ function getRecommendations(top_5_tracks, mood) {
 				trackURI = track.id;
 			}
 
-			document.getElementById('mood-select-container').style.display = 'none';
 			document.getElementById('recommendation-container').style.display = 'block';
 			document.getElementById('recommendation-btn-container').style.display = 'block';
 			animateCSS('#recommendation-container', 'zoomIn');

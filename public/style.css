@@ -285,17 +285,19 @@ body {
 		font-size: 50px;
 	}
 
-	.emoji-btn:hover {
-		cursor: pointer;
-		width: 65px;
-		height: 65px;
-		font-size: 65px;
-		transform: translate(-20%, -33%);
-	}
-
 	#emoji-btns-container {
 		width: 375px;
 	}
+
+	/* @media (any-hover: hover) {
+		.emoji-btn:hover {
+			cursor: pointer;
+			width: 65px;
+			height: 65px;
+			font-size: 65px;
+			transform: translate(-20%, -33%);
+		}
+	} */
 }
 
 @media screen and (max-width: 375px) {
@@ -305,25 +307,33 @@ body {
 		font-size: 50px;
 	}
 
-	.emoji-btn:hover {
-		cursor: pointer;
-		width: 65px;
-		height: 65px;
-		font-size: 65px;
-		transform: translate(-20%, -33%);
-	}
-
 	#emoji-btns-container {
 		width: 275px;
 	}
+
+	/* @media (any-hover: hover) {
+		.emoji-btn:hover {
+			cursor: pointer;
+			width: 65px;
+			height: 65px;
+			font-size: 65px;
+			transform: translate(-20%, -33%);
+		}
+	} */
 }
+
+/* @media (any-hover: hover) {
+	.emoji-btn:hover {
+		cursor: pointer;
+		width: 85px;
+		height: 85px;
+		font-size: 85px;
+		transform: translate(-20%, -33%);
+	}
+} */
 
 .emoji-btn:hover {
 	cursor: pointer;
-	width: 85px;
-	height: 85px;
-	font-size: 85px;
-	transform: translate(-20%, -33%);
 }
 
 #mood-description {
