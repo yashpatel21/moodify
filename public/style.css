@@ -516,3 +516,8 @@ body {
 	font-style: italic;
 	font-size: 12pt;
 }
+
+#retry-modal {
+	position: absolute;
+	z-index: 9999;
+}

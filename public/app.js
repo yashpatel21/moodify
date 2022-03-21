@@ -6,6 +6,8 @@ let refresh_token = null;
 let trackURI = null;
 let spotify_username = null;
 
+let retry_allowed = true;
+
 function onPageLoad() {
 	if (window.location.search.length > 0) {
 		handleRedirect();
@@ -295,19 +297,34 @@ function getRecommendations(top_5_tracks, mood) {
 			animateCSS('#recommendation-btn-container', 'fadeIn');
 
 			window.history.pushState('', '', `${REDIRECT_URI}?track=${trackURI}`);
+
+			retry_allowed = false;
+
+			setTimeout(() => {
+				retry_allowed = true;
+			}, 1000 * 30);
 		});
 	});
 }
 
 function reset() {
-	document.getElementById('recommendation-container').style.display = 'none';
-	document.getElementById('mood-select-container').style.display = 'block';
-	document.getElementById('recommendation-btn-container').style.display = 'none';
+	if (retry_allowed) {
+		document.getElementById('recommendation-container').style.display = 'none';
+		document.getElementById('mood-select-container').style.display = 'block';
+		document.getElementById('recommendation-btn-container').style.display = 'none';
 
-	animateCSS('#emoji-btns-container', 'zoomIn');
-	animateCSS('#mood-description', 'fadeIn');
+		animateCSS('#emoji-btns-container', 'zoomIn');
+		animateCSS('#mood-description', 'fadeIn');
 
-	window.history.pushState('', '', REDIRECT_URI);
+		window.history.pushState('', '', REDIRECT_URI);
+	} else {
+		let retry_modal = new bootstrap.Modal(document.getElementById('retry-modal'));
+		retry_modal.show();
+
+		document.getElementById('close-modal-btn').onclick = function () {
+			retry_modal.hide();
+		};
+	}
 }
 
 function setCookie(cname, cvalue) {
