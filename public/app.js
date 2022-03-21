@@ -260,10 +260,10 @@ function getTrackData() {
 }
 
 function getRecommendations(top_5_tracks, mood) {
-	mood += Math.random() / 5 - 0.1;
+	mood += (Math.random() * 2 - 1) / 13.33;
 	mood = Math.min(Math.max(mood, 0), 1);
 
-	let url = `https://api.spotify.com/v1/recommendations?target_valence=${mood}&target_energy=${mood}&target_danceability=${mood}&limit=1&seed_tracks=`;
+	let url = `https://api.spotify.com/v1/recommendations?target_valence=${mood}&target_energy=${mood}&target_danceability=${mood}&limit=20&seed_tracks=`;
 	url += top_5_tracks.join(',');
 
 	fetch(url, {
@@ -275,20 +275,40 @@ function getRecommendations(top_5_tracks, mood) {
 		},
 	}).then((response) => {
 		response.json().then((data) => {
-			for (let track of data.tracks) {
-				document.getElementById('recommended-track-image').src = track.album.images[1].url;
+			let recommended_track = null;
+			let used_tracks = getCookie('used_tracks');
 
-				let track_artists = [];
-
-				for (let artist of track.artists) {
-					track_artists.push(artist.name);
-				}
-
-				document.getElementById('recommended-track-name').innerText = track.name;
-				document.getElementById('recommended-track-artists').innerText = track_artists.join(', ');
-
-				trackURI = track.id;
+			if (used_tracks === '') {
+				used_tracks = [];
+			} else {
+				used_tracks = JSON.parse(used_tracks);
 			}
+
+			for (let track of data.tracks) {
+				if (!used_tracks.includes(track.id)) {
+					recommended_track = track;
+					used_tracks.push(recommended_track.id);
+					setCookie('used_tracks', JSON.stringify(used_tracks));
+					break;
+				}
+			}
+
+			if (recommended_track === null) {
+				recommended_track = data.tracks[Math.floor(Math.random() * data.tracks.length)];
+			}
+
+			document.getElementById('recommended-track-image').src = recommended_track.album.images[1].url;
+
+			let track_artists = [];
+
+			for (let artist of recommended_track.artists) {
+				track_artists.push(artist.name);
+			}
+
+			document.getElementById('recommended-track-name').innerText = recommended_track.name;
+			document.getElementById('recommended-track-artists').innerText = track_artists.join(', ');
+
+			trackURI = recommended_track.id;
 
 			document.getElementById('loading-container').style.display = 'none';
 			document.getElementById('recommendation-container').style.display = 'block';
