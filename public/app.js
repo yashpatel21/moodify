@@ -1,4 +1,4 @@
-const REDIRECT_URI = 'https://moodify2.herokuapp.com/';
+const REDIRECT_URI = window.location.origin;
 const CLIENT_ID = '229d83fe4d794c548af6b891c2926386';
 
 let access_token = null;
@@ -129,9 +129,8 @@ async function refreshAccessToken() {
 	});
 }
 
-const animateCSS = (element, animation, prefix = 'animate__') =>
-	// We create a Promise and return it
-	new Promise((resolve, reject) => {
+function animateCSS(element, animation, prefix = 'animate__') {
+	return new Promise((resolve, reject) => {
 		const animationName = `${prefix}${animation}`;
 		const node = document.querySelector(element);
 
@@ -146,6 +145,7 @@ const animateCSS = (element, animation, prefix = 'animate__') =>
 
 		node.addEventListener('animationend', handleAnimationEnd, { once: true });
 	});
+}
 
 function getUserProfile() {
 	fetch('https://api.spotify.com/v1/me', {
@@ -172,10 +172,14 @@ function getUserProfile() {
 
 async function getUserTopTracks(mood) {
 	document.getElementById('mood-select-container').style.display = 'none';
+	document.getElementById('loading-container').style.display = 'block';
+	animateCSS('#loading-container', 'fadeIn');
 
 	let top_tracks = [];
 
-	let time_range = Math.random() < 0.5 ? 'short_term' : 'medium_term';
+	let time_range_choices = ['short_term', 'medium_term', 'long_term'];
+
+	const time_range = time_range_choices[Math.floor(Math.random() * time_range_choices.length)];
 
 	await refreshAccessToken();
 
@@ -187,19 +191,22 @@ async function getUserTopTracks(mood) {
 			Authorization: 'Bearer ' + access_token,
 		},
 	}).then((response) => {
-		response.json().then((data) => {
+		response.json().then(async (data) => {
 			for (let track of data.items) {
 				top_tracks.push(track.id);
 			}
 
-			let top_5 = pickRandomNfromArray(top_tracks, 5);
+			// shuffles the array
+			for (let i = top_tracks.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[top_tracks[i], top_tracks[j]] = [top_tracks[j], top_tracks[i]];
+			}
+
+			let top_5 = top_tracks.slice(0, 5);
+
 			getRecommendations(top_5, mood);
 		});
 	});
-}
-
-function pickRandomNfromArray(array, n) {
-	return array.sort(() => 0.5 - Math.random()).slice(0, n);
 }
 
 function getTrackData() {
@@ -242,7 +249,10 @@ function getTrackData() {
 }
 
 function getRecommendations(top_5_tracks, mood) {
-	let url = `https://api.spotify.com/v1/recommendations?target_valence=${mood}&target_energy=${mood}&limit=1&seed_tracks=`;
+	mood += Math.random() / 5 - 0.1;
+	mood = Math.min(Math.max(mood, 0), 1);
+
+	let url = `https://api.spotify.com/v1/recommendations?target_valence=${mood}&target_energy=${mood}&target_danceability=${mood}&limit=1&seed_tracks=`;
 	url += top_5_tracks.join(',');
 
 	fetch(url, {
@@ -269,6 +279,7 @@ function getRecommendations(top_5_tracks, mood) {
 				trackURI = track.id;
 			}
 
+			document.getElementById('loading-container').style.display = 'none';
 			document.getElementById('recommendation-container').style.display = 'block';
 			document.getElementById('recommendation-btn-container').style.display = 'block';
 			animateCSS('#recommendation-container', 'zoomIn');
@@ -358,5 +369,5 @@ function share() {
 }
 
 function openSpotify() {
-	window.location.href = `spotify:track:${trackURI}`;
+	window.location.href = `https://open.spotify.com/track/${trackURI}`;
 }

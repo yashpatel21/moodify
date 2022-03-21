@@ -53,13 +53,18 @@
 
 			<div id="mood-select-container" class="text-white">
 				<div id="emoji-btns-container">
-					<span onclick="getUserTopTracks(0)" class="emoji-btn">&#9785;&#65039;</span>
-					<span onclick="getUserTopTracks(0.25)" class="emoji-btn">&#128577;</span>
-					<span onclick="getUserTopTracks(0.5)" class="emoji-btn">&#128528;</span>
-					<span onclick="getUserTopTracks(0.75)" class="emoji-btn">&#128578;</span>
-					<span onclick="getUserTopTracks(1)" class="emoji-btn">&#128522;</span>
+					<span onclick="getUserTopTracks(0.16)" class="emoji-btn">&#9785;&#65039;</span>
+					<span onclick="getUserTopTracks(0.33)" class="emoji-btn">&#128577;</span>
+					<span onclick="getUserTopTracks(0.50)" class="emoji-btn">&#128528;</span>
+					<span onclick="getUserTopTracks(0.66)" class="emoji-btn">&#128578;</span>
+					<span onclick="getUserTopTracks(0.83)" class="emoji-btn">&#128522;</span>
 				</div>
 				<p id="mood-description" class="lead">Select the emoji that matches your current mood!</p>
+			</div>
+
+			<div id="loading-container" class="text-white">
+				<div class="spinner-border text-light" role="status"></div>
+				<p id="loading-description" class="lead">Generating a song based on your mood...</p>
 			</div>
 
 			<div id="recommendation-container" class="text-white">
