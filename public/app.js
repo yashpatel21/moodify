@@ -1,4 +1,4 @@
-const REDIRECT_URI = window.location.origin;
+const REDIRECT_URI = window.location.origin + '/';
 const CLIENT_ID = '229d83fe4d794c548af6b891c2926386';
 
 let access_token = null;
@@ -11,23 +11,11 @@ function onPageLoad() {
 		handleRedirect();
 	} else {
 		access_token = getCookie('access_token');
-		if (access_token == '') {
-			document.getElementById('splash-container').style.display = 'block';
-			document.getElementById('title').style.display = 'block';
-			animateCSS('#title', 'fadeIn');
-			animateCSS('#splash-container', 'fadeIn');
+		refresh_token = getCookie('refresh_token');
+
+		if (refresh_token === '') {
+			logOut();
 		} else {
-			refreshAccessToken();
-
-			document.getElementById('splash-container').style.display = 'none';
-			document.getElementById('mood-select-container').style.display = 'block';
-			document.getElementById('title').style.marginTop = '0.5vh';
-			document.getElementById('title').style.fontSize = '35px';
-			document.getElementById('title').style.display = 'block';
-			animateCSS('#title', 'fadeIn');
-			animateCSS('#emoji-btns-container', 'zoomIn');
-			animateCSS('#mood-description', 'fadeIn');
-
 			getUserProfile();
 		}
 	}
@@ -36,8 +24,8 @@ function onPageLoad() {
 function handleRedirect() {
 	let code = getCode();
 	if (code != null) {
-		fetchAccessToken(code);
 		window.history.pushState('', '', REDIRECT_URI);
+		fetchAccessToken(code);
 	} else {
 		trackURI = getQueryTrackURI();
 
@@ -112,21 +100,28 @@ function fetchAccessToken(code) {
 }
 
 async function refreshAccessToken() {
-	refresh_token = getCookie('refresh_token');
+	if (refresh_token === '' || refresh_token === null) {
+		return false;
+	} else {
+		const response = await fetch('/refresh-access-token', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ refresh_token: refresh_token }),
+		});
 
-	const response = await fetch('/refresh-access-token', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({ refresh_token: refresh_token }),
-	});
-	response.json().then((data) => {
+		const data = await response.json();
+
 		if (data.access_token != undefined) {
 			access_token = data.access_token;
 			setCookie('access_token', access_token);
+			return true;
+		} else {
+			logOut();
+			return false;
 		}
-	});
+	}
 }
 
 function animateCSS(element, animation, prefix = 'animate__') {
@@ -136,7 +131,6 @@ function animateCSS(element, animation, prefix = 'animate__') {
 
 		node.classList.add(`${prefix}animated`, animationName);
 
-		// When the animation ends, we clean the classes and resolve the Promise
 		function handleAnimationEnd(event) {
 			event.stopPropagation();
 			node.classList.remove(`${prefix}animated`, animationName);
@@ -147,66 +141,81 @@ function animateCSS(element, animation, prefix = 'animate__') {
 	});
 }
 
-function getUserProfile() {
-	fetch('https://api.spotify.com/v1/me', {
-		method: 'GET',
-		headers: {
-			Accept: 'application/json',
-			'Content-Type': 'application/json',
-			Authorization: 'Bearer ' + access_token,
-		},
-	}).then((response) => {
-		response.json().then((data) => {
-			spotify_username = data.display_name;
+async function getUserProfile() {
+	let result = await refreshAccessToken();
 
-			document.getElementById('spotify-user-profile').src = data.images[0].url;
-			document.getElementById('spotify-user-name').innerText = data.display_name;
-			document.getElementById('user-info-container').style.display = 'flex';
-			document.getElementById('logout-btn').style.display = 'flex';
+	if (result) {
+		fetch('https://api.spotify.com/v1/me', {
+			method: 'GET',
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json',
+				Authorization: 'Bearer ' + access_token,
+			},
+		}).then((response) => {
+			response.json().then((data) => {
+				spotify_username = data.display_name;
 
-			animateCSS('#user-info-container', 'fadeIn');
-			animateCSS('#logout-btn', 'fadeIn');
+				document.getElementById('splash-container').style.display = 'none';
+				document.getElementById('mood-select-container').style.display = 'block';
+				document.getElementById('title').style.marginTop = '0.5vh';
+				document.getElementById('title').style.fontSize = '35px';
+				document.getElementById('title').style.display = 'block';
+				animateCSS('#title', 'fadeIn');
+				animateCSS('#emoji-btns-container', 'zoomIn');
+				animateCSS('#mood-description', 'fadeIn');
+
+				document.getElementById('spotify-user-profile').src = data.images[0].url;
+				document.getElementById('spotify-user-name').innerText = data.display_name;
+				document.getElementById('user-info-container').style.display = 'flex';
+				document.getElementById('logout-btn').style.display = 'flex';
+
+				animateCSS('#user-info-container', 'fadeIn');
+				animateCSS('#logout-btn', 'fadeIn');
+			});
 		});
-	});
+	}
 }
 
 async function getUserTopTracks(mood) {
-	document.getElementById('mood-select-container').style.display = 'none';
-	document.getElementById('loading-container').style.display = 'block';
-	animateCSS('#loading-container', 'fadeIn');
+	let result = await refreshAccessToken();
 
-	let top_tracks = [];
+	if (result) {
+		document.getElementById('mood-select-container').style.display = 'none';
+		document.getElementById('loading-container').style.display = 'block';
+		animateCSS('#loading-container', 'fadeIn');
 
-	let time_range_choices = ['short_term', 'medium_term', 'long_term'];
+		let top_tracks = [];
 
-	const time_range = time_range_choices[Math.floor(Math.random() * time_range_choices.length)];
+		let time_range_choices = ['short_term', 'medium_term', 'long_term'];
 
-	await refreshAccessToken();
+		const time_range = time_range_choices[Math.floor(Math.random() * time_range_choices.length)];
 
-	fetch(`https://api.spotify.com/v1/me/top/tracks?time_range=${time_range}&limit=50`, {
-		method: 'GET',
-		headers: {
-			Accept: 'application/json',
-			'Content-Type': 'application/json',
-			Authorization: 'Bearer ' + access_token,
-		},
-	}).then((response) => {
-		response.json().then(async (data) => {
-			for (let track of data.items) {
-				top_tracks.push(track.id);
-			}
+		fetch(`https://api.spotify.com/v1/me/top/tracks?time_range=${time_range}&limit=50`, {
+			method: 'GET',
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json',
+				Authorization: 'Bearer ' + access_token,
+			},
+		}).then((response) => {
+			response.json().then(async (data) => {
+				for (let track of data.items) {
+					top_tracks.push(track.id);
+				}
 
-			// shuffles the array
-			for (let i = top_tracks.length - 1; i > 0; i--) {
-				const j = Math.floor(Math.random() * (i + 1));
-				[top_tracks[i], top_tracks[j]] = [top_tracks[j], top_tracks[i]];
-			}
+				// shuffles the array
+				for (let i = top_tracks.length - 1; i > 0; i--) {
+					const j = Math.floor(Math.random() * (i + 1));
+					[top_tracks[i], top_tracks[j]] = [top_tracks[j], top_tracks[i]];
+				}
 
-			let top_5 = top_tracks.slice(0, 5);
+				let top_5 = top_tracks.slice(0, 5);
 
-			getRecommendations(top_5, mood);
+				getRecommendations(top_5, mood);
+			});
 		});
-	});
+	}
 }
 
 function getTrackData() {
@@ -334,6 +343,7 @@ function logOut() {
 
 	document.getElementById('title').style.marginTop = '30vh';
 	document.getElementById('title').style.fontSize = '75px';
+	document.getElementById('title').style.display = 'block';
 
 	document.getElementById('user-info-container').style.display = 'none';
 	document.getElementById('logout-btn').style.display = 'none';
