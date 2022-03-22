@@ -318,11 +318,11 @@ function getRecommendations(top_5_tracks, mood) {
 
 			window.history.pushState('', '', `${REDIRECT_URI}?track=${trackURI}`);
 
-			// retry_allowed = false;
+			retry_allowed = false;
 
-			// setTimeout(() => {
-			// 	retry_allowed = true;
-			// }, 1000 * 30);
+			setTimeout(() => {
+				retry_allowed = true;
+			}, 1000 * 30);
 		});
 	});
 }
