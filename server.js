@@ -12,6 +12,12 @@ const REDIRECT_URI = process.env.REDIRECT_URI;
 app.use(express.static('public'));
 app.use(express.json());
 
+app.get('/', function (req, res, next) {
+	if (req.protocol == 'http') {
+		res.redirect('https://' + req.get('host') + req.originalUrl);
+	}
+});
+
 app.get('/get-temp-access-token', (req, res) => {
 	fetch('https://accounts.spotify.com/api/token', {
 		method: 'POST',
