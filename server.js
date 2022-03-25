@@ -9,14 +9,16 @@ const CLIENT_ID = '229d83fe4d794c548af6b891c2926386';
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = process.env.REDIRECT_URI;
 
-app.use(express.static('public'));
-app.use(express.json());
-
-app.get('/', function (req, res, next) {
-	if (req.protocol == 'http') {
-		res.redirect('https://' + req.get('host') + req.originalUrl);
+app.use((req, res, next) => {
+	if (req.header('x-forwarded-proto') !== 'https') {
+		res.redirect(`https://${req.header('host')}${req.url}`);
+	} else {
+		next();
 	}
 });
+
+app.use(express.static('public'));
+app.use(express.json());
 
 app.get('/get-temp-access-token', (req, res) => {
 	fetch('https://accounts.spotify.com/api/token', {
