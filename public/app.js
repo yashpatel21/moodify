@@ -1,4 +1,4 @@
-const REDIRECT_URI = window.location.origin + '/';
+const REDIRECT_URI = 'https://www.moodify.link/';
 const CLIENT_ID = '229d83fe4d794c548af6b891c2926386';
 
 let access_token = null;
